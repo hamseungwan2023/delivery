@@ -14,16 +14,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
-public class FoodDeliveryService {
+public class FoodDeliveryService extends AbstractDeliveryService {
     private final FoodRepository foodRepository;
-    private final DeliveryRepository deliveryRepository;
 
     public FoodDeliveryService(FoodRepository foodRepository, DeliveryRepository deliveryRepository) {
+        super(deliveryRepository);
         this.foodRepository = foodRepository;
-        this.deliveryRepository = deliveryRepository;
     }
 
-    public Delivery deliverFood(Long foodId) {
+    @Override
+    public Delivery delivery(Long foodId) {
         final Food food = foodRepository.findById(foodId)
                 .orElseThrow(IllegalArgumentException::new);
 
@@ -36,23 +36,19 @@ public class FoodDeliveryService {
                 .name(food.getName())
                 .build();
 
-        deliveryRepository.save(delivery);
+        getDeliveryRepository().save(delivery);
 
         return delivery;
     }
 
-    private String generateTrackingNo(String description) {
-        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))
-                + String.valueOf(description.hashCode()).substring(0, 4);
-    }
-
-    public DeliveryStatus trackFood(String trackingNumber) {
-        return deliveryRepository.findById(trackingNumber)
-                .map(Delivery::getStatus)
-                .orElseThrow(IllegalReceiveException::new);
-    }
-
-    public List<Food> getAllFoods() {
+    @Override
+    public List<Food> getAllItem() {
         return foodRepository.findAll();
+    }
+
+    @Override
+    public <Food> Food findItemById(Long foodId, Class<Food> itemType) {
+        return itemType.cast(foodRepository.findById(foodId)
+                .orElseThrow(()->new IllegalArgumentException("해당하는 음식이 없습니다.")));
     }
 }

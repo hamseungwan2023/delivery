@@ -4,14 +4,14 @@ spring:
 
     datasource:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://
-        username:
-        password:
+        url: jdbc:mysql://localhost:3306/delivery
+        username: root
+        password: 1234
 
     jpa:
         database: MYSQL
         hibernate:
-            ddl-auto: none
+            ddl-auto: update
 
     sql:
         init:
